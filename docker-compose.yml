@@ -1,0 +1,26 @@
+version: '2'
+services:
+  mysql:
+    container_name: my_mysql
+    restart: always
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: 'secret' # TODO: Change this
+      MYSQL_DATABASE: 'yepa'
+      MYSQL_USER: 'test'
+      MYSQL_PASS: 'pass'
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  php:
+    container_name: my_php
+    restart: always
+    image: tutum/apache-php
+    ports:
+      - "80:80"
+    volumes:
+      - ./html:/var/www/html
+
