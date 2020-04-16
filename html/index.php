@@ -28,7 +28,7 @@
       </thead>
       <tbody>
         <?php
-        $conexion = mysql_connect("mysql", "root", "secret");
+        $conexion = mysql_connect("my_mysql", "root", "secret");
         mysql_select_db("SG", $conexion);
 
         $cadenaSQL = "select * from s_customer";
