@@ -28,13 +28,12 @@
       </thead>
       <tbody>
         <?php
-        $conexion = mysql_connect("mysql", "root", "secret");
-        mysql_select_db("SG", $conexion);
+        $conexion = new mysqli("mysql", "root", "secret", "SG");
 
         $cadenaSQL = "select * from s_customer";
-        $resultado = mysql_query($cadenaSQL);
+        $resultado = $conexion->query($cadenaSQL);
 
-        while ($fila = mysql_fetch_object($resultado)) {
+        while ($fila = $resultado->fetch_object()) {
          echo "<tr><td> " .$fila->name . 
          "</td><td>" . $fila->credit_rating .
          "</td><td>" . $fila->address .
