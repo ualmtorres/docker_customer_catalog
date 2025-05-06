@@ -1,40 +1,38 @@
 version: "3.8"
 
 services:
-  php:
-    container_name: php
-    build:
-      dockerfile: ./docker/php/Dockerfile
+  registry-ui:
+    image: joxit/docker-registry-ui:main
+    restart: always
     ports:
-      - "9000:9000"
-    volumes:
-      - ./html:/usr/share/nginx/html
-    command: sh -c "cd /usr/share/nginx/html && php-fpm"
-
-  nginx:
-    container_name: nginx
-    image: nginx:stable-alpine
-    ports:
-      - "80:80"
-    volumes:
-      - ./html:/usr/share/nginx/html
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - php
-
-  mysql:
-    container_name: mysql
-    image: mysql:latest
+      - 80:80
     environment:
-      MYSQL_ROOT_PASSWORD: secret
-      MYSQL_USER: example
-      MYSQL_PASSWORD: example
-      MYSQL_DATABASE: SG
-    ports:
-      - "3306:3306"
+      - SINGLE_REGISTRY=true
+      - REGISTRY_TITLE=Docker Registry UI
+      - DELETE_IMAGES=true
+      - SHOW_CONTENT_DIGEST=true
+      - NGINX_PROXY_PASS_URL=http://registry-server:5000
+      - SHOW_CATALOG_NB_TAGS=true
+      - CATALOG_MIN_BRANCHES=1
+      - CATALOG_MAX_BRANCHES=1
+      - TAGLIST_PAGE_SIZE=100
+      - REGISTRY_SECURED=false
+      - CATALOG_ELEMENTS_LIMIT=1000
+    container_name: registry-ui
+
+  registry-server:
+    image: registry:2.8.2
+    restart: always
+    environment:
+      REGISTRY_HTTP_HEADERS_Access-Control-Allow-Origin: "[http://registry.example.com]"
+      REGISTRY_HTTP_HEADERS_Access-Control-Allow-Methods: "[HEAD,GET,OPTIONS,DELETE]"
+      REGISTRY_HTTP_HEADERS_Access-Control-Allow-Credentials: "[true]"
+      REGISTRY_HTTP_HEADERS_Access-Control-Allow-Headers: "[Authorization,Accept,Cache-Control]"
+      REGISTRY_HTTP_HEADERS_Access-Control-Expose-Headers: "[Docker-Content-Digest]"
+      REGISTRY_STORAGE_DELETE_ENABLED: "true"
     volumes:
-      - mysql_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - registry_data:/var/lib/registry
+    container_name: registry-server
 
 volumes:
-  mysql_data:
+  registry_data:
